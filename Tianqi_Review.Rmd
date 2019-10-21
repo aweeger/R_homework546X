@@ -1,0 +1,382 @@
+---
+title: "R_Assignment_546X"
+author: "Axelle Weeger"
+date: "10/10/2019"
+output: html_document
+---
+# Part I
+
+## Setting up our environemnt. 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+if (!require("filesstrings")) install.packages("filesstrings")
+library(filesstrings)
+if (!require("reshape2")) install.packages("reshape2")
+library("reshape2")
+if (!require("ggplot2")) install.packages("ggplot2")
+library(ggplot2)
+if (!require("plyr")) install.packages("plyr")
+library(plyr)
+if (!require("tidyr")) install.packages("tidyr")
+library(tidyr)
+if (!require("tidyverse")) install.packages("tidyverse")
+library(tidyverse)
+#I didn't use this but I think it is necessary
+```
+
+### Reading the data into the environment
+
+```{r}
+fang <- read_tsv("https://raw.githubusercontent.com/EEOB-BioData/BCB546X-Fall2019/master/assignments/UNIX_Assignment/fang_et_al_genotypes.txt")
+
+snp_position <- read_tsv("https://raw.githubusercontent.com/EEOB-BioData/BCB546X-Fall2019/master/assignments/UNIX_Assignment/snp_position.txt")
+```
+
+
+### Inpecting the data
+```{r}
+
+str(fang)
+nrow(fang)
+ncol(fang)
+dim(fang)
+str(snp_position)
+nrow(snp_position)
+ncol(snp_position)
+dim(snp_position)
+
+```
+
+
+### Separating the data for Maize (ZMMIL,ZMMLR,ZMMMR), and Teosinte (ZMMPBA, ZMPIL, ZMPJA). 
+```{r}
+(maizefang <-filter(fang, Group %in% c("ZMMIL", "ZMMLR", "ZMMMR")))
+(teosintefang <-filter(fang, Group %in% c("ZMPBA", "ZMPIL", "ZMPJA")))
+```
+
+
+### Transposing each of the two files, and assigning the header back. 
+
+```{r}
+
+t_maize <- as.data.frame(t(maizefang[,-1]))
+colnames(t_maize) <- maizefang$Sample_ID
+
+t_teosinte <- as.data.frame(t(teosintefang[,-1]))
+colnames(t_teosinte) <- teosintefang$Sample_ID
+#Is is possible to use rm(teosintefang) & rm(maizefang)
+```
+
+### Creating the SNP data frame with only ID, CHR and POS as columns. 
+
+```{r}
+snp_redux <-snp_position[,c(1,3,4)]
+```
+
+### Joining the transposed files with snp_redux dataframe. 
+
+```{r}
+j_maize <- merge(x = snp_redux, y = t_maize, by.x = "SNP_ID", by.y ="row.names", all.y = TRUE)
+
+j_teosinte <- merge(x = snp_redux, y = t_teosinte, by.x = "SNP_ID", by.y ="row.names", all.y = TRUE)
+
+```
+
+
+### Sorting the files by position. 
+
+```{r}
+j_maize <- j_maize[order(j_maize$Position),]
+j_teosinte <- j_teosinte[order(j_teosinte$Position),]
+
+```
+
+### After this, we can split the dataframes according to the chromosome number and save the corresponding files
+
+#### First the maize data, which is then moved into its own folder. 
+
+```{r}
+
+s_maize <- split(j_maize, j_maize$Chromosome)
+
+Maize_Chr1 <- s_maize$`1` 
+write.csv(as.data.frame(Maize_Chr1), file = "Maize_Chr1.csv")
+
+Maize_Chr2 <- s_maize$`2`
+write.csv(as.data.frame(Maize_Chr2), file = "Maize_Chr2.csv")
+
+Maize_Chr3 <- s_maize$`3`
+write.csv(as.data.frame(Maize_Chr3), file = "Maize_Chr3.csv")
+
+Maize_Chr4 <- s_maize$`4`
+write.csv(as.data.frame(Maize_Chr4), file = "Maize_Chr4.csv")
+
+Maize_Chr5 <- s_maize$`5`
+write.csv(as.data.frame(Maize_Chr5), file = "Maize_Chr5.csv")
+
+Maize_Chr6 <- s_maize$`6`
+write.csv(as.data.frame(Maize_Chr6), file = "Maize_Chr6.csv")
+
+Maize_Chr7 <- s_maize$`7`
+write.csv(as.data.frame(Maize_Chr7), file = "Maize_Chr7.csv")
+
+Maize_Chr8 <- s_maize$`8`
+write.csv(as.data.frame(Maize_Chr8), file = "Maize_Chr8.csv")
+
+Maize_Chr9 <- s_maize$`9`
+write.csv(as.data.frame(Maize_Chr9), file = "Maize_Chr9.csv")
+
+Maize_Chr10 <- s_maize$`10`
+write.csv(as.data.frame(Maize_Chr10), file = "Maize_Chr10.csv")
+
+dir.create("Maize_chromosome_forward")
+file.move("../R_homework546X/Maize_Chr1.csv", "../R_homework546X/Maize_chromosome_forward", overwrite = T)
+file.move("../R_homework546X/Maize_Chr2.csv", "../R_homework546X/Maize_chromosome_forward", overwrite = T)
+file.move("../R_homework546X/Maize_Chr3.csv", "../R_homework546X/Maize_chromosome_forward", overwrite = T)
+file.move("../R_homework546X/Maize_Chr4.csv", "../R_homework546X/Maize_chromosome_forward", overwrite = T)
+file.move("../R_homework546X/Maize_Chr5.csv", "../R_homework546X/Maize_chromosome_forward", overwrite = T)
+file.move("../R_homework546X/Maize_Chr6.csv", "../R_homework546X/Maize_chromosome_forward", overwrite = T)
+file.move("../R_homework546X/Maize_Chr7.csv", "../R_homework546X/Maize_chromosome_forward", overwrite = T)
+file.move("../R_homework546X/Maize_Chr8.csv", "../R_homework546X/Maize_chromosome_forward", overwrite = T)
+file.move("../R_homework546X/Maize_Chr9.csv", "../R_homework546X/Maize_chromosome_forward", overwrite = T)
+file.move("../R_homework546X/Maize_Chr10.csv", "../R_homework546X/Maize_chromosome_forward", overwrite = T)
+```
+
+#### Then the teosinte data. 
+
+
+```{r}
+
+s_teosinte <- split(j_teosinte, j_teosinte$Chromosome)
+
+Teosinte_Chr1 <- s_teosinte$`1` 
+write.csv(as.data.frame(Teosinte_Chr1), file = "Teosinte_Chr1.csv")
+
+Teosinte_Chr2 <- s_teosinte$`2`
+write.csv(as.data.frame(Teosinte_Chr2), file = "Teosinte_Chr2.csv")
+
+Teosinte_Chr3 <- s_teosinte$`3`
+write.csv(as.data.frame(Teosinte_Chr3), file = "Teosinte_Chr3.csv")
+
+Teosinte_Chr4 <- s_teosinte$`4`
+write.csv(as.data.frame(Teosinte_Chr4), file = "Teosinte_Chr4.csv")
+
+Teosinte_Chr5 <- s_teosinte$`5`
+write.csv(as.data.frame(Teosinte_Chr5), file = "Teosinte_Chr5.csv")
+
+Teosinte_Chr6 <- s_teosinte$`6`
+write.csv(as.data.frame(Teosinte_Chr6), file = "Teosinte_Chr6.csv")
+
+Teosinte_Chr7 <- s_teosinte$`7`
+write.csv(as.data.frame(Teosinte_Chr7), file = "Teosinte_Chr7.csv")
+
+Teosinte_Chr8 <- s_teosinte$`8`
+write.csv(as.data.frame(Teosinte_Chr8), file = "Teosinte_Chr8.csv")
+
+Teosinte_Chr9 <- s_teosinte$`9`
+write.csv(as.data.frame(Teosinte_Chr9), file = "Teosinte_Chr9.csv")
+
+Teosinte_Chr10 <- s_teosinte$`10`
+write.csv(as.data.frame(Teosinte_Chr10), file = "Teosinte_Chr10.csv")
+
+dir.create("Teosinte_chromosome_forward")
+file.move("../R_homework546X/Teosinte_Chr1.csv", "../R_homework546X/Teosinte_chromosome_forward", overwrite = T)
+file.move("../R_homework546X/Teosinte_Chr2.csv", "../R_homework546X/Teosinte_chromosome_forward", overwrite = T)
+file.move("../R_homework546X/Teosinte_Chr3.csv", "../R_homework546X/Teosinte_chromosome_forward", overwrite = T)
+file.move("../R_homework546X/Teosinte_Chr4.csv", "../R_homework546X/Teosinte_chromosome_forward", overwrite = T)
+file.move("../R_homework546X/Teosinte_Chr5.csv", "../R_homework546X/Teosinte_chromosome_forward", overwrite = T)
+file.move("../R_homework546X/Teosinte_Chr6.csv", "../R_homework546X/Teosinte_chromosome_forward", overwrite = T)
+file.move("../R_homework546X/Teosinte_Chr7.csv", "../R_homework546X/Teosinte_chromosome_forward", overwrite = T)
+file.move("../R_homework546X/Teosinte_Chr8.csv", "../R_homework546X/Teosinte_chromosome_forward", overwrite = T)
+file.move("../R_homework546X/Teosinte_Chr9.csv", "../R_homework546X/Teosinte_chromosome_forward", overwrite = T)
+file.move("../R_homework546X/Teosinte_Chr10.csv", "../R_homework546X/Teosinte_chromosome_forward", overwrite = T)
+```
+
+### Now we create the reverse files, with ?/? replaced by -/-, 
+
+#### Maize first. 
+
+```{r}
+
+j_maize_rev <- j_maize[order(j_maize$Position, decreasing=T),]
+j_maize_rev[] <- lapply(j_maize_rev, as.character)
+j_maize_rev[j_maize_rev == '?/?'] <- '-/-'
+
+
+s_maize_rev <- split(j_maize_rev, j_maize_rev$Chromosome)
+rev_Maize_Chr1 <- s_maize_rev$`1`
+write.csv(as.data.frame(rev_Maize_Chr1), file = "rev_Maize_Chr1.csv")
+
+rev_Maize_Chr2 <- s_maize_rev$`2`
+write.csv(as.data.frame(rev_Maize_Chr2), file = "rev_Maize_Chr2.csv")
+
+rev_Maize_Chr3 <- s_maize_rev$`3`
+write.csv(as.data.frame(rev_Maize_Chr3), file = "rev_Maize_Chr3.csv")
+
+rev_Maize_Chr4 <- s_maize_rev$`4`
+write.csv(as.data.frame(rev_Maize_Chr4), file = "rev_Maize_Chr4.csv")
+
+rev_Maize_Chr5 <- s_maize_rev$`5`
+write.csv(as.data.frame(rev_Maize_Chr5), file = "rev_Maize_Chr5.csv")
+
+rev_Maize_Chr6 <- s_maize_rev$`6`
+write.csv(as.data.frame(rev_Maize_Chr6), file = "rev_Maize_Chr6.csv")
+
+rev_Maize_Chr7 <- s_maize_rev$`7`
+write.csv(as.data.frame(rev_Maize_Chr7), file = "rev_Maize_Chr7.csv")
+
+rev_Maize_Chr8 <- s_maize_rev$`8`
+write.csv(as.data.frame(rev_Maize_Chr8), file = "rev_Maize_Chr8.csv")
+
+rev_Maize_Chr9 <- s_maize_rev$`9`
+write.csv(as.data.frame(rev_Maize_Chr9), file = "rev_Maize_Chr9.csv")
+
+rev_Maize_Chr10 <- s_maize_rev$`10`
+write.csv(as.data.frame(rev_Maize_Chr10), file = "rev_Maize_Chr10.csv")
+
+
+dir.create("Maize_chromosome_reverse")
+file.move("../R_homework546X/rev_Maize_Chr1.csv", "../R_homework546X/Maize_chromosome_reverse", overwrite = T)
+file.move("../R_homework546X/rev_Maize_Chr2.csv", "../R_homework546X/Maize_chromosome_reverse", overwrite = T)
+file.move("../R_homework546X/rev_Maize_Chr3.csv", "../R_homework546X/Maize_chromosome_reverse", overwrite = T)
+file.move("../R_homework546X/rev_Maize_Chr4.csv", "../R_homework546X/Maize_chromosome_reverse", overwrite = T)
+file.move("../R_homework546X/rev_Maize_Chr5.csv", "../R_homework546X/Maize_chromosome_reverse", overwrite = T)
+file.move("../R_homework546X/rev_Maize_Chr6.csv", "../R_homework546X/Maize_chromosome_reverse", overwrite = T)
+file.move("../R_homework546X/rev_Maize_Chr7.csv", "../R_homework546X/Maize_chromosome_reverse", overwrite = T)
+file.move("../R_homework546X/rev_Maize_Chr8.csv", "../R_homework546X/Maize_chromosome_reverse", overwrite = T)
+file.move("../R_homework546X/rev_Maize_Chr9.csv", "../R_homework546X/Maize_chromosome_reverse", overwrite = T)
+file.move("../R_homework546X/rev_Maize_Chr10.csv", "../R_homework546X/Maize_chromosome_reverse", overwrite = T)
+```
+
+#### Then teosinte. 
+```{r}
+
+j_teosinte_rev <- j_teosinte[order(j_teosinte$Position, decreasing=T),]
+j_teosinte_rev[] <- lapply(j_teosinte_rev, as.character)
+j_teosinte_rev[j_teosinte_rev == '?/?'] <- '-/-'
+
+
+s_teosinte_rev <- split(j_teosinte_rev, j_teosinte_rev$Chromosome)
+rev_Teosinte_Chr1 <- s_teosinte_rev$`1`
+write.csv(as.data.frame(rev_Teosinte_Chr1), file = "rev_Teosinte_Chr1.csv")
+
+rev_Teosinte_Chr2 <- s_teosinte_rev$`2`
+write.csv(as.data.frame(rev_Teosinte_Chr2), file = "rev_Teosinte_Chr2.csv")
+
+rev_Teosinte_Chr3 <- s_teosinte_rev$`3`
+write.csv(as.data.frame(rev_Teosinte_Chr3), file = "rev_Teosinte_Chr3.csv")
+
+rev_Teosinte_Chr4 <- s_teosinte_rev$`4`
+write.csv(as.data.frame(rev_Teosinte_Chr4), file = "rev_Teosinte_Chr4.csv")
+
+rev_Teosinte_Chr5 <- s_teosinte_rev$`5`
+write.csv(as.data.frame(rev_Teosinte_Chr5), file = "rev_Teosinte_Chr5.csv")
+
+rev_Teosinte_Chr6 <- s_teosinte_rev$`6`
+write.csv(as.data.frame(rev_Teosinte_Chr6), file = "rev_Teosinte_Chr6.csv")
+
+rev_Teosinte_Chr7 <- s_teosinte_rev$`7`
+write.csv(as.data.frame(rev_Teosinte_Chr7), file = "rev_Teosinte_Chr7.csv")
+
+rev_Teosinte_Chr8 <- s_teosinte_rev$`8`
+write.csv(as.data.frame(rev_Teosinte_Chr8), file = "rev_Teosinte_Chr8.csv")
+
+rev_Teosinte_Chr9 <- s_teosinte_rev$`9`
+write.csv(as.data.frame(rev_Teosinte_Chr9), file = "rev_Teosinte_Chr9.csv")
+
+rev_Teosinte_Chr10 <- s_teosinte_rev$`10`
+write.csv(as.data.frame(rev_Teosinte_Chr10), file = "rev_Teosinte_Chr10.csv")
+
+
+dir.create("Teosinte_chromosome_reverse")
+file.move("../R_homework546X/rev_Teosinte_Chr1.csv", "../R_homework546X/Teosinte_chromosome_reverse", overwrite = T)
+file.move("../R_homework546X/rev_Teosinte_Chr2.csv", "../R_homework546X/Teosinte_chromosome_reverse", overwrite = T)
+file.move("../R_homework546X/rev_Teosinte_Chr3.csv", "../R_homework546X/Teosinte_chromosome_reverse", overwrite = T)
+file.move("../R_homework546X/rev_Teosinte_Chr4.csv", "../R_homework546X/Teosinte_chromosome_reverse", overwrite = T)
+file.move("../R_homework546X/rev_Teosinte_Chr5.csv", "../R_homework546X/Teosinte_chromosome_reverse", overwrite = T)
+file.move("../R_homework546X/rev_Teosinte_Chr6.csv", "../R_homework546X/Teosinte_chromosome_reverse", overwrite = T)
+file.move("../R_homework546X/rev_Teosinte_Chr7.csv", "../R_homework546X/Teosinte_chromosome_reverse", overwrite = T)
+file.move("../R_homework546X/rev_Teosinte_Chr8.csv", "../R_homework546X/Teosinte_chromosome_reverse", overwrite = T)
+file.move("../R_homework546X/rev_Teosinte_Chr9.csv", "../R_homework546X/Teosinte_chromosome_reverse", overwrite = T)
+file.move("../R_homework546X/rev_Teosinte_Chr10.csv", "../R_homework546X/Teosinte_chromosome_reverse", overwrite = T)
+```
+
+
+# Part II
+
+### Creating a joint file containing all genotypes. 
+
+```{r}
+transposed_fang <- as.data.frame(t(fang[,-1]))
+colnames(transposed_fang) <- fang$Sample_ID
+genotypes_joint <- merge(x = snp_redux, y = transposed_fang, by.x = "SNP_ID", by.y ="row.names", all.y = TRUE)
+```
+
+### plot the total number of SNPs in our dataset on each chromosome. 
+
+```{r}
+genotypes_joint$Chromosome <- factor(genotypes_joint$Chromosome, levels = c("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "multiple", "unknown", "NA"))
+Number_chromosome_plot <- ggplot(genotypes_joint, aes((Chromosome))) + geom_bar(stat=) + ggtitle("Number of SNP for each chromosome") + theme_bw() 
+Number_chromosome_plot
+```
+
+### Now plotting the distribution of SNPs per chromosome. 
+
+```{r}
+ggplot(data = genotypes_joint) + geom_point(mapping=aes(x=Chromosome, y=Position))
+```
+
+### Looking at the heterozygous percentages, let's generate a melted dataset for ease of manipulation. 
+
+```{r}
+headers_names<- colnames(fang)[-c(1:3)]
+melted_genotypes <- melt(fang, measure.vars = headers_names)
+```
+
+### Assign all missing values as NA, Create a new columns to indicate whether a particular site is homozygous (True) or heterozygous (False). 
+
+```{r}
+melted_genotypes[ melted_genotypes == "?/?" ] = NA
+melted_genotypes$isHomozygous <- (melted_genotypes$value=="A/A" | melted_genotypes$value=="C/C" | melted_genotypes$value=="G/G" | melted_genotypes$value=="T/T")
+```
+
+
+### Sort/Order the dataframe using Group and Species_ID values. 
+
+```{r}
+genotypes_by_ID <- melted_genotypes[order(melted_genotypes$Sample_ID),]
+genotypes_by_Group <- melted_genotypes[order(melted_genotypes$Group),]
+```
+
+### Build a dataframe for homozygous, heterozygous NA, with Sample_ID. Melt the results and make a graph that shows homozygous, heterozygous, and missing data for each sample.  
+
+```{r}
+counting_ID <- ddply(genotypes_by_ID, c("Sample_ID"), summarise,counting_heterozygous=sum(!isHomozygous, na.rm=TRUE), counting_homozygous=sum(isHomozygous, na.rm=TRUE),  isNA=sum(is.na(isHomozygous)))
+counting_ID_melt <- melt(counting_ID, measure.vars = c("counting_homozygous", "counting_heterozygous", "isNA"))
+
+Missing_data_plot1 <- ggplot(counting_ID_melt,aes(x = Sample_ID, y= value, fill=variable)) + geom_bar(stat = "identity", position = "stack") + ggtitle("Homozygous vs Heterozygous vs Missing Data") + theme_bw()  + scale_fill_brewer(palette="Set1") 
+Missing_data_plot1
+```
+
+### Build the same graph, for each group. 
+```{r}
+counting_Group <- ddply(genotypes_by_Group, c("Group"), summarise, counting_homozygous=sum(isHomozygous, na.rm=TRUE), counting_heterozygous=sum(!isHomozygous, na.rm=TRUE), isNA=sum(is.na(isHomozygous)))
+counting_Group_melt <- melt(counting_Group, measure.vars = c("counting_homozygous", "counting_heterozygous", "isNA"))
+
+Missing_data_plot2 <-  ggplot(counting_Group_melt,aes(x = Group, y= value, fill=variable)) + geom_bar(stat = "identity", position = "fill") + ggtitle("Missing data and amount of heterozygosity ") + theme_bw()   + scale_fill_brewer(palette="Set1") 
+Missing_data_plot2
+```
+
+
+### Creating a plot of SNPs per Group. 
+
+```{r}
+group_plot <- ggplot(fang, aes(Group, fill = )) + geom_bar() + ggtitle("Group") + theme_bw()  
+group_plot
+```
+
+#### This will tell us What groups contribute most of these SNPs. The ZMMIL, ZMMLR and ZMPBA contribute the most to the SNP count.
+
+
