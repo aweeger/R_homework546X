@@ -52,8 +52,9 @@ dim(snp_position)
 
 ### Separating the data for Maize (ZMMIL,ZMMLR,ZMMMR), and Teosinte (ZMMPBA, ZMPIL, ZMPJA). 
 ```{r}
-(maizefang <-filter(fang, Group %in% c("ZMMIL", "ZMMLR", "ZMMMR")))
-(teosintefang <-filter(fang, Group %in% c("ZMPBA", "ZMPIL", "ZMPJA")))
+maizefang <-filter(fang, Group %in% c("ZMMIL", "ZMMLR", "ZMMMR"))
+teosintefang <-filter(fang, Group %in% c("ZMPBA", "ZMPIL", "ZMPJA"))
+#delete () here
 ```
 
 
